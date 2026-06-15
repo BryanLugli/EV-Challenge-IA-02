@@ -81,8 +81,7 @@ Além disso, usamos **few-shot prompting** dentro do system prompt: incluímos e
 
 ## Testes realizados
 
-Os 5 casos de teste definidos na Sprint 1 foram executados e os resultados estão documentados em [docs/testes_resultados(01).md] testes_resultados (1).md.
-
+Os 5 casos de teste definidos na Sprint 1 foram executados e os resultados estão documentados
 | # | Pergunta | Avaliação |
 |---|---|---|
 | 1 | Quanto cada morador consumiu este mês? | Adequado |
