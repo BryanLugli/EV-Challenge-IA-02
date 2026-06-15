@@ -2,7 +2,7 @@
 
 # GoodWe EV ChargeOps — Chatbot de Gestão de Eletropostos
 
-Projeto desenvolvido para o **EV Challenge 2026**, em parceria com a GoodWe, como parte da disciplina de IA da FIAP.
+Projeto desenvolvido para o **EV Challenge 2026**, em parceria com a GoodWe, como parte da disciplina de Inteligência Artificial da FIAP.
 
 ---
 
@@ -14,44 +14,143 @@ Projeto desenvolvido para o **EV Challenge 2026**, em parceria com a GoodWe, com
 
 ---
 
-## O que é esse projeto?
+## O problema que motivou o projeto
 
-A ideia surgiu de um problema real: condomínios que estão instalando eletropostos não têm uma forma simples de responder às dúvidas do dia a dia dos moradores. Quem está usando o carregador agora? Quanto vou pagar esse mês? Posso ligar meu carro à noite sem prejudicar a rede?
+Com a chegada dos veículos elétricos nos condomínios, surgiu um problema que parece simples mas gera bastante confusão no dia a dia: como gerenciar de forma justa o uso compartilhado dos eletropostos?
 
-O **EV ChargeOps** é um chatbot com IA que responde exatamente essas perguntas. Ele conhece as regras do condomínio, o status dos pontos de carregamento e o consumo de cada unidade — e conversa em linguagem natural, sem exigir que o morador entenda nada de tecnologia.
+Hoje, moradores não sabem se o ponto de carregamento está livre, síndicos não têm como responder rapidamente dúvidas sobre consumo e cobrança, e a falta de informação gera conflitos. Além disso, a ausência de controle sobre a carga elétrica pode sobrecarregar a rede do condomínio em horários de pico.
 
-O foco é o cenário condominial (EV ChargeOps), onde vários moradores compartilham os mesmos pontos de carga e existe a necessidade de controle justo e transparente.
+Foi com esse contexto que desenvolvemos o **EV ChargeOps**: um chatbot com inteligência artificial que serve como assistente operacional do sistema de eletropostos, respondendo em linguagem natural as dúvidas de moradores, síndicos e administradores.
 
 ---
 
+## O que o chatbot faz
 
-## Como o chatbot funciona
+- Informa o consumo de energia de cada unidade no mês
+- Explica como funciona a cobrança proporcional por kWh
+- Mostra quais pontos estão disponíveis ou ocupados no momento
+- Avisa sobre restrições de horário (ex: horário de pico entre 18h e 21h)
+- Monitora o status da rede elétrica e alerta sobre riscos de sobrecarga
+- Responde dúvidas sobre as regras do condomínio relacionadas ao carregamento
+- Respeita a privacidade dos moradores: identifica uso por unidade, nunca por nome
 
-O chatbot recebe a pergunta do usuário, monta um histórico de mensagens (para manter o contexto da conversa) e envia tudo para a API da OpenAI junto com um **system prompt** que define quem ele é e o que ele sabe.
+O chatbot mantém **memória da conversa**, ou seja, você pode fazer perguntas encadeadas e ele vai lembrar do contexto — como se fosse uma conversa de verdade.
 
-Esse system prompt carrega o contexto do condomínio: quais pontos existem, quem está usando agora, o consumo de cada unidade, as regras de horário e a tarifa vigente. Assim o modelo consegue responder de forma coerente sem inventar informações.
+---
 
-Parâmetros utilizados:
-- Modelo: `gpt-3.5-turbo`
-- Temperature: `0.4` — equilibra consistência com naturalidade
-- Max tokens: `600`
+## Tecnologias utilizadas
 
-Também usamos **few-shot prompting** dentro do system prompt, com exemplos de perguntas e respostas esperadas, para calibrar melhor o estilo das respostas.
+- **Python 3.10+**
+- **Hugging Face Inference API** — modelo `Mistral-7B-Instruct-v0.3`
+- **Kaggle Notebooks** como ambiente de execução principal
+- **Few-shot prompting** para calibrar o estilo e qualidade das respostas
+- **System prompt contextualizado** com dados do condomínio, regras e status simulado do sistema GoodWe
+
+---
+
+## Como rodar o projeto
+
+### Kaggle (recomendado)
+
+É a forma mais fácil e não precisa instalar nada na sua máquina.
+
+1. Acesse [kaggle.com](https://kaggle.com) e faça login
+2. Vá em **Code → New Notebook** e depois **File → Import Notebook** para subir o `goodwe_chatbot.ipynb`
+3. No painel direito, clique em **Add-ons → Secrets → Add a new secret**:
+   - **Nome:** `HF_API_KEY`
+   - **Valor:** sua chave do Hugging Face (começa com `hf_`)
+   - Ative o toggle para liberar o acesso no notebook
+4. Clique em **Run All** para executar todas as células
+
+As células vão rodar em sequência: instalação, configuração, testes automáticos e interface de chat interativo.
+
+### Execução local (Jupyter)
+
+Se preferir rodar na sua própria máquina:
+
+```bash
+pip install huggingface_hub
+```
+
+Configure a chave de API como variável de ambiente:
+
+```bash
+# Linux ou macOS
+export HF_API_KEY="sua-chave-aqui"
+
+# Windows (PowerShell)
+$env:HF_API_KEY="sua-chave-aqui"
+```
+
+Depois abra o notebook:
+
+```bash
+jupyter notebook goodwe_chatbot.ipynb
+```
+
+---
+
+## Variáveis de ambiente
+
+| Variável | Descrição | Obrigatório |
+|---|---|---|
+| `HF_API_KEY` | Chave de autenticação da API do Hugging Face | Sim |
+
+> **Importante:** a chave de API nunca deve aparecer diretamente no código ou ser commitada no repositório. Use sempre os Secrets do Kaggle ou variáveis de ambiente locais. Esse cuidado está implementado no projeto.
+
+---
+
+## Dependências
+
+O projeto usa apenas uma biblioteca externa:
+
+```
+huggingface_hub>=0.20.0
+```
+
+Instalação:
+
+```bash
+pip install huggingface_hub
+```
+
+No Kaggle, a instalação acontece automaticamente na primeira célula do notebook.
+
+---
+
+## Como o chatbot foi construído
+
+O núcleo do chatbot é a classe `GoodWeChatbot`, que gerencia duas coisas principais:
+
+**1. O system prompt** — um texto de contexto enviado em toda chamada à API, que define quem o assistente é, o que ele sabe (dados do condomínio, status dos pontos, tarifas, regras) e como ele deve se comportar. É aqui que fica a "inteligência" do negócio.
+
+**2. O histórico de mensagens** — a cada troca, o código acumula as mensagens anteriores e reenvia tudo para a API. Isso é o que permite o chatbot "lembrar" do que foi dito antes na mesma conversa.
+
+Além disso, usamos **few-shot prompting** dentro do system prompt: incluímos exemplos de perguntas e respostas esperadas para guiar o modelo a responder no estilo certo — objetivo, claro e acessível para quem não tem conhecimento técnico.
+
+Parâmetros do modelo:
+
+| Parâmetro | Valor | Motivo |
+|---|---|---|
+| Modelo | `Mistral-7B-Instruct-v0.3` | Modelo open source gratuito via Hugging Face Inference API |
+| Temperature | `0.4` | Respostas consistentes sem ser robóticas |
+| Max tokens | `600` | Respostas completas sem serem longas demais |
 
 ---
 
 ## Testes realizados
 
-Rodamos os 5 casos de teste definidos na Sprint 1 e documentamos os resultados no arquivo [`docs/testes_resultados.md`](docs/testes_resultados.md).
+Os 5 casos de teste definidos na Sprint 1 foram executados e os resultados estão documentados em [`docs/testes_resultados.md`](docs/testes_resultados.md).
 
-| Pergunta | Resultado |
-|---|---|
-| Quanto cada morador consumiu este mês? | Adequado |
-| Como funciona a cobrança do carregamento? | Adequado |
-| Posso carregar meu carro à noite? | Adequado |
-| O sistema está sobrecarregado? | Adequado |
-| Quem está usando o carregador agora? | Adequado |
+| # | Pergunta | Avaliação |
+|---|---|---|
+| 1 | Quanto cada morador consumiu este mês? | Adequado |
+| 2 | Como funciona a cobrança do carregamento? | Adequado |
+| 3 | Posso carregar meu carro à noite? | Adequado |
+| 4 | O sistema está sobrecarregado? | Adequado |
+| 5 | Quem está usando o carregador agora? | Adequado |
+
+Os testes validaram que o chatbot mantém o escopo do problema GoodWe, utiliza corretamente os dados simulados do condomínio e não inventa informações fora do contexto.
 
 ---
 
-| EV Challenge 2026
