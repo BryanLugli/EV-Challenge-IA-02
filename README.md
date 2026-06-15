@@ -48,55 +48,13 @@ O chatbot mantém **memória da conversa**, ou seja, você pode fazer perguntas 
 
 ---
 
-## Como rodar o projeto
 
-### Kaggle (recomendado)
-
-É a forma mais fácil e não precisa instalar nada na sua máquina.
-
-1. Acesse [kaggle.com](https://kaggle.com) e faça login
-2. Vá em **Code → New Notebook** e depois **File → Import Notebook** para subir o `goodwe_chatbot.ipynb`
-3. No painel direito, clique em **Add-ons → Secrets → Add a new secret**:
-   - **Nome:** `HF_API_KEY`
-   - **Valor:** sua chave do Hugging Face (começa com `hf_`)
-   - Ative o toggle para liberar o acesso no notebook
-4. Clique em **Run All** para executar todas as células
-
-As células vão rodar em sequência: instalação, configuração, testes automáticos e interface de chat interativo.
-
-### Execução local (Jupyter)
-
-Se preferir rodar na sua própria máquina:
-
-```bash
-pip install huggingface_hub
-```
-
-Configure a chave de API como variável de ambiente:
-
-```bash
-# Linux ou macOS
-export HF_API_KEY="sua-chave-aqui"
-
-# Windows (PowerShell)
-$env:HF_API_KEY="sua-chave-aqui"
-```
-
-Depois abra o notebook:
-
-```bash
-jupyter notebook goodwe_chatbot.ipynb
-```
-
----
 
 ## Variáveis de ambiente
 
 | Variável | Descrição | Obrigatório |
 |---|---|---|
 | `HF_API_KEY` | Chave de autenticação da API do Hugging Face | Sim |
-
-> **Importante:** a chave de API nunca deve aparecer diretamente no código ou ser commitada no repositório. Use sempre os Secrets do Kaggle ou variáveis de ambiente locais. Esse cuidado está implementado no projeto.
 
 ---
 
@@ -108,15 +66,6 @@ O projeto usa apenas uma biblioteca externa:
 huggingface_hub>=0.20.0
 ```
 
-Instalação:
-
-```bash
-pip install huggingface_hub
-```
-
-No Kaggle, a instalação acontece automaticamente na primeira célula do notebook.
-
----
 
 ## Como o chatbot foi construído
 
@@ -127,14 +76,6 @@ O núcleo do chatbot é a classe `GoodWeChatbot`, que gerencia duas coisas princ
 **2. O histórico de mensagens** — a cada troca, o código acumula as mensagens anteriores e reenvia tudo para a API. Isso é o que permite o chatbot "lembrar" do que foi dito antes na mesma conversa.
 
 Além disso, usamos **few-shot prompting** dentro do system prompt: incluímos exemplos de perguntas e respostas esperadas para guiar o modelo a responder no estilo certo — objetivo, claro e acessível para quem não tem conhecimento técnico.
-
-Parâmetros do modelo:
-
-| Parâmetro | Valor | Motivo |
-|---|---|---|
-| Modelo | `Mistral-7B-Instruct-v0.3` | Modelo open source gratuito via Hugging Face Inference API |
-| Temperature | `0.4` | Respostas consistentes sem ser robóticas |
-| Max tokens | `600` | Respostas completas sem serem longas demais |
 
 ---
 
