@@ -41,7 +41,7 @@ O chatbot mantém **memória da conversa**, ou seja, você pode fazer perguntas 
 ## Tecnologias utilizadas
 
 - **Python 3.10+**
-- **Hugging Face Inference API** — modelo `Mistral-7B-Instruct-v0.3`
+- **Hugging Face Inference API** — modelo 'Qwen/Qwen2.5-7B-Instruct'
 - **Kaggle Notebooks** como ambiente de execução principal
 - **Few-shot prompting** para calibrar o estilo e qualidade das respostas
 - **System prompt contextualizado** com dados do condomínio, regras e status simulado do sistema GoodWe
